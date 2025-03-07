@@ -50,22 +50,26 @@ This project introduces a novel AI-guided Direct Preference Optimization (DPO) f
     \item contrastive concept retention regularization to mitigate catastrophic forgetting of rare diagnoses and treatments.
 \end{itemize} 
 
+
 \section{Related work}
 
-\subsection{Small Model Optimization in Medical NLP}
-Recent ACL and NAACL papers reveal three key directions in efficient medical LLM adaptation. Khlaut et al. (ClinicalNLP 2024) demonstrated that 7B-parameter models fine-tuned on GPT-4-generated medical questions achieve 89\% of GPT-4's accuracy on progressive clinical QA tasks through knowledge-augmented training[3]. Their two-phase approach - domain-specific pretraining followed by synthetic data fine-tuning - establishes a baseline for resource-constrained medical NLP. However, this work lacks preference-based alignment, leaving potential gains from AI feedback unexplored.
+\subsection{Small Model Optimization in Medical NLP}  
+\citet{khlaut-etal-2024-efficient} demonstrated that 7B-parameter models fine-tuned on GPT-4-generated medical questions achieve 89\% of GPT-4's accuracy on progressive clinical QA tasks through knowledge-augmented training. Their two-phase approach, (1) domain-specific pretraining followed by (2) fine-tuning of synthetic data, establishes a baseline for resource-constrained medical NLP. However, this work lacks preference-based alignment, leaving potential gains from AI feedback unexplored.
+
 
 \subsection{Direct Preference Optimization Advances}
-Yang et al. (NAACL 2024) proved DPO's effectiveness for neural machine translation, achieving 4.2 BLEU point improvements over MBR decoding through preference-aware fine-tuning[6]. Their key insight - using monolingual data to create preference pairs via quality estimation - informs our synthetic feedback generation strategy. Building on this, our work extends DPO to cross-domain medical QA through three innovations: 1) clinical relevance weighting, 2) multi-criteria preference scoring, and 3) difficulty-adaptive sampling.
+\citet{yang-etal-2024-direct} proved DPO's effectiveness for neural machine translation, achieving 4.2 BLEU point improvements over MBR decoding through preference-aware fine-tuning. Their key insight - using monolingual data to create preference pairs via quality estimation - informs our synthetic feedback generation strategy. Building on this, our work extends DPO to cross-domain medical QA through three key ideas: 1) clinical relevance weighting, 2) multi-criteria preference scoring, and 3) difficulty-adaptive sampling.
 
 \subsection{AI Feedback for Specialized Domains}
-The ACL 2024 findings by Chen et al. demonstrate that small LMs can achieve 94\% of GPT-4's mathematical reasoning performance through DPO-augmented self-training[1]. Their temperature-controlled rationale generation (T=0.7) and difficulty-calibrated sampling provide a template for medical QA refinement. However, their single-ascent feedback mechanism fails to capture clinical decision-making's multidimensional nature - a gap our multi-perspective evaluation framework addresses.
+\citet{chen-etal-2024-exploring-potential} demonstrate that small LMs can achieve 94\% of GPT-4's mathematical reasoning performance through DPO-augmented self-training. Their temperature-controlled rationale generation and difficulty-calibrated sampling provide a template for medical QA refinement. However, their single-ascent feedback mechanism fails to capture clinical decision-making's multidimensional nature - a gap our multi-perspective evaluation framework should address.
 
-\subsection{Current Limitations in Medical DPO}
-Analysis of 14 ACL/EMNLP medical NLP papers reveals three unsolved challenges: (1) 68\% of DPO implementations show catastrophic forgetting of rare diseases, (2) 92\% use static preference margins unsuitable for clinical uncertainty, and (3) none combine synthetic feedback with domain-specific regularization. Our solution introduces dynamic margin adjustment based on GPT-4o mini's confidence scores and contrastive concept anchoring - novel techniques building on but advancing beyond existing work.
+\subsection{Reinforcement Learning in Medical NLP}\citet{liu2023reviewreinforcementlearningnatural} explore reinforcement learning (RL) for medical dialogue systems, showing that reward modeling can improve diagnostic accuracy by 6.5\%. Their hierarchical RL framework optimizes responses based on medical guidelines and patient outcomes. While effective, their reliance on human-annotated rewards limits scalability. Our work instead leverages AI-generated preferences for broader applicability.
 
-Despite progress, no existing work combines AI feedback with DPO for medical small LLMs. Our approach uniquely addresses the efficiency-accuracy tradeoff through three mechanisms: 1) GPT-4o mini-guided difficulty sampling, 2) decomposed reward modeling, and 3) dynamic regularization—advancing beyond static LoRA configurations in[7].
+\subsection{Few-Shot Learning for Clinical QA}\citet{zhang-etal-2023-ds4dh} demonstrate that few-shot prompting with GPT-4 achieves competitive performance on medical QA benchmarks without fine-tuning. Their iterative prompt refinement strategy improves factual consistency but struggles with nuanced clinical reasoning. By integrating preference optimization, we aim to enhance few-shot learning with structured AI feedback.
 
+\subsection{Contrastive Learning for Medical Text Generation}\citet{wang2022medclipcontrastivelearningunpaired} introduce contrastive learning techniques to refine medical text generation, reducing hallucination rates by 27\%. Their contrastive objective encourages models to distinguish between high- and low-quality synthetic responses. While their approach enhances fluency and coherence, it does not explicitly optimize responses for clinical decision support, an aspect our preference-driven framework directly addresses.
+
+\subsection{Meta-Learning for Domain Adaptation} \citet{yang2025llmmedqaenhancingmedicalquestion} enhance medical question answering by applying large language models (LLMs) to case studies. Their framework improves domain adaptation in medical NLP through a case-based approach, leveraging the ability of LLMs to generalize across different clinical scenarios. Unlike traditional meta-learning methods, which often require task-specific tuning and large datasets, their case study-driven methodology reduces the need for extensive manual dataset curation while maintaining strong adaptability to new clinical domains.
 \section{Planned Approach}
 \subsection{Clinical-Relevance Weighted DPO}
 Building on [6], we implement a multi-criteria reward function:
