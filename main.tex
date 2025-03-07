@@ -33,9 +33,22 @@
 
 \section{Introduction}
 
-Medical question answering (MedQA) systems play a critical role in clinical decision support, patient education, and biomedical research. However, developing AI-driven MedQA models presents unique challenges, requiring a balance between clinical accuracy, interpretability, and computational efficiency~\cite{ekinci-2025, jin-2021, si-2023}. Large language models (LLMs) such as GPT-4o have demonstrated state-of-the-art performance in medical reasoning and diagnosis prediction~\cite{nori-2023, singhal-2022}, yet their practical deployment in resource-constrained healthcare settings remains limited due to high latency, memory overhead, and prohibitive computational costs~\cite{gao-2024}. This has fueled interest in lightweight LLMs, with recent studies showing that 7B-parameter models can achieve competitive accuracy when properly aligned and fine-tuned for medical tasks~\cite{yang-2023, xu-2024}. However, existing alignment strategies for small-scale MedQA models face three major obstacles: (1) over-reliance on human-annotated preference data, which is expensive and limited in scope~\cite{ouyang-2022, bai-2022}, (2) difficulty in capturing complex multi-step medical reasoning processes, and (3) catastrophic forgetting of rare but clinically significant medical concepts during fine-tuning~\cite{wei-2023, li-2024}.  
+Medical question answering (MedQA) systems play a critical role in clinical decision support, patient education, and biomedical research. However, developing AI-driven MedQA models presents unique challenges, requiring a balance between clinical accuracy, interpretability, and computational efficiency~\cite{ekinci-2025}. Large language models (LLMs) such as GPT-4o have demonstrated state-of-the-art performance in medical reasoning and diagnosis prediction~\cite{nori2023capabilitiesgpt4medicalchallenge}, yet their practical deployment in resource-constrained healthcare settings remains limited due to high latency, memory overhead, and prohibitive computational costs~\cite{bai2024efficiencysystematicsurveyresourceefficient}. 
 
-This project introduces a novel AI-guided Direct Preference Optimization (DPO) framework that leverages GPT-4o mini's reasoning capabilities to generate high-quality synthetic preference pairs, thereby reducing dependency on costly human annotations. Inspired by parameter-efficient tuning techniques such as BioMistral-7B~\cite{touvron-2023} and MedAlpaca~\cite{zhang-2023}, our approach integrates three key innovations: (1) **dynamic difficulty-aware example generation** to improve the diversity and robustness of training samples, (2) **multi-aspect feedback aggregation** to enhance alignment with medical experts' reasoning, and (3) **contrastive concept retention regularization** to mitigate catastrophic forgetting of rare diagnoses and treatments. Preliminary results indicate that this approach enhances MedQA accuracy by 12-15\% over standard DPO implementations while reducing computational costs by 83\% compared to conventional reinforcement learning with human feedback (RLHF) pipelines~\cite{bai-2022, gao-2024}.  
+This has fueled interest in lightweight LLMs, with recent studies showing that 7B-parameter models can achieve competitive accuracy when properly aligned and fine-tuned for medical tasks~\cite{tran2024bioinstructinstructiontuninglarge}. However, existing alignment strategies for small-scale MedQA models face three major obstacles: 
+\begin{itemize}
+    \item over-reliance on human-annotated preference data, which is expensive and limited in scope~\cite{ouyang-2022, bai2022constitutionalaiharmlessnessai}
+    \item difficulty in capturing complex multi-step medical reasoning processes, and
+    \item catastrophic forgetting of rare but clinically significant medical concepts during fine-tuning~\cite{ren2024analyzingreducingcatastrophicforgetting, luo2025empiricalstudycatastrophicforgetting}.
+\end{itemize}   
+
+This project introduces a novel AI-guided Direct Preference Optimization (DPO) framework that leverages GPT-4o mini's reasoning capabilities to generate high-quality synthetic preference pairs, thereby reducing dependency on costly human annotations. Inspired by parameter-efficient tuning techniques such as BioMistral-7B~\cite{labrak2024biomistralcollectionopensourcepretrained} and MedAlpaca~\cite{han2023medalpacaopensourcecollection}, our approach attempts to integrate three key ideas: 
+
+\begin{itemize}
+    \item dynamic difficulty-aware example generation to improve the diversity and robustness of training samples
+    \item multi-aspect feedback aggregation to enhance alignment with medical experts' reasoning
+    \item contrastive concept retention regularization to mitigate catastrophic forgetting of rare diagnoses and treatments.
+\end{itemize} 
 
 \section{Related work}
 
