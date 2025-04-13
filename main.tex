@@ -114,20 +114,17 @@ class MedicalDPOTrainer(DPOTrainer):
 This regularization maintains <3\% performance drop on rare conditions vs. 22\% in baseline DPO implementations.
 
 \subsection{Schedule}
-Divide your project into subtasks and estimate how much time each will take. If your group plans to divide subtasks amongst itself, also write who will be responsible for each milestone. If you plan to work on everything together, please say so here. Definitely budget some time for writing the final report, as well as performing an in-depth analysis of any models you build and/or data you collect. Sample schedule below:
+We expect to subdivide specific tasks as we work through this project, but in genreal will be working together on all parts of the process, from design, to implementation, and review.
 \begin{enumerate}
-    \item Acquire and pre-process data (2 weeks)
-    \item Build models for task (5 weeks)
-    \item Analyze the output of the model, do an error analysis (2 weeks)
-    \item Work on final reports (1 weeks)
+    \item Load and pre-process data (1 week). The data we will be using is readily available so no further collection is required. From there we will jsut need to complete the preprocessing.
+    \item Design and build models for task (5 weeks). This will be the bulk of the process as we are proposing a novel method in the feild. Making sure that the model is built and working to our expectation will take considerable work.
+    \item Analyze the output of the model. do an error analysis (2 weeks). Considering all goes well, we expect to have quality outputs that validate our research. Taking the time to analyze output and error will be an important task that may take considerable time.
+    \item Finalize and report findings (1 weeks). Finalizing the report will be completed in the final week of the project.
 \end{enumerate}
-
-Note that for projects involving data collection or model analysis, Step 1/3 could be much longer and Step 2 much shorter! We welcome all types of proposals and projects, as long as there is an NLP research contribution.
 
 \section{Data}
 
-What text data do you plan to use in your project? Where will you get it from? Will you be annotating text yourselves? Convince us that it is available for you, and that you can easily get it, and that it is appropriate for the task and research questions you care about.
-
+The data that we will be working with is medical Question and Answer data collected from the National Medical Board Examination in the USA, Mainland China, and Taiwan. The data set "What Disease does this Patient Have?"\cite{jin2020diseasedoespatienthave} has tens of thousands of Questions and Answer pairs in English, simplified Chinese, and traditional Chinese, of which we will be using the 12,723 English pairs denoted USMLE (in reference to the United States Medical Licensing Examination). This open domain data set is readily available from kaggle under an MIT liscense. Since all Question-Answer pairs are populated in the dataset, further annotation will not be required. This robust Dataset will provide us with ample, high quality data to develop and test the novel aproach to AI-guided Direct Performance Optimization that has been outlined in this proposal. 
 
 \section{Tools}
 What existing libraries or toolkits are you going to use? Some questions to think about: will you be doing any preprocessing of your data such as tokenization or parsing? Will you be training logistic regression models? Will you be using deep learning libraries (if not, you need to justify why)? Will you need to use any services for GPUs?\footnote{As we said in class, we strongly suggest \url{https://colab.research.google.com}!} Do you need to use crowdsourcing?
