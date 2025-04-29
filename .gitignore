@@ -6,6 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
+mlruns/
+
 # Distribution / packaging
 .Python
 build/
