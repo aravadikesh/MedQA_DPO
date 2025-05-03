@@ -28,8 +28,8 @@ class MedDPOLoss(nn.Module):
         chosen_rewards = np.dot(self.weights, chosen_rewards)    
         rejected_rewards = np.dot(self.weights, rejected_rewards)
 
-        log_pref_logits = torch.log(chosen_logits)
-        log_reject_logits = torch.log(rejected_logits)
+        log_pref_logits = torch.log(chosen_logits).mean()
+        log_reject_logits = torch.log(rejected_logits).mean()
 
         conf = log_pref_logits - log_reject_logits
 
