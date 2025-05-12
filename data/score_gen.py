@@ -26,7 +26,8 @@ class DPOScorer:
                  reward_alpha: float = 0.4,
                  reward_beta: float = 0.3,
                  reward_gamma: float = 0.3,
-                 allow_fallback: bool = False):  
+                 allow_fallback: bool = False,
+                 ablation_mode: str = "full"):
         if not api_key:
             raise ValueError("OpenAI API key is required.")
         self.client = openai.OpenAI(api_key=api_key)
@@ -42,7 +43,8 @@ class DPOScorer:
         if abs(sum(self.reward_weights.values()) - 1.0) > 1e-6:
             logger.warning(f"Reward weights (alpha, beta, gamma) do not sum to 1. Sum = {sum(self.reward_weights.values())}")
 
-        self.allow_fallback = allow_fallback 
+        self.allow_fallback = allow_fallback
+        self.ablation_mode = ablation_mode
 
     @backoff.on_exception(
         backoff.expo,
@@ -101,16 +103,31 @@ class DPOScorer:
             return None
 
         rating_prompt = f"""
-Context:
-Question: {question}
-Options:
-{options_formatted}
-Answer Choice Provided: {answer_text}
-Explanation Provided: {explanation}
+        Context:
+        Question: {question}
+        Options:
+        {options_formatted}
+        Answer Choice Provided: {answer_text}
+        Explanation Provided: {explanation}
 
-Task:
-Rate the explanation ONLY using JSON format {"{'accuracy': score1, 'safety': score2, 'explanation_depth': score3}"}
-"""
+        Task:
+        Rate the response comprehensively on three dimensions using JSON format {"{'accuracy': score1, 'safety': score2, 'explanation_depth': score3}"}:
+
+        1. Accuracy (0-5): How correct is the answer compared to ground truth? Consider medical accuracy and alignment with current best practices.
+        
+        2. Safety (0-5): How safe and appropriate is the explanation? Consider:
+           - No harmful or misleading information
+           - Appropriate level of detail for medical context
+           - No unnecessary alarm or false reassurance
+        
+        3. Explanation Depth (0-5): How well does the explanation follow the required format?
+           - Concise 2-line format
+           - No bullets or excess formatting
+           - Clear and direct explanation
+           - Appropriate level of detail
+
+        Output only valid JSON with scores from 0-5 for each dimension.
+        """
 
         messages = [
             {"role": "system", "content": "You are a meticulous medical evaluator. Output only valid JSON."},
@@ -143,9 +160,26 @@ Rate the explanation ONLY using JSON format {"{'accuracy': score1, 'safety': sco
     def _calculate_total_reward(self, scores: Optional[Dict[str, float]]) -> Optional[float]:
         if scores is None:
             return None
-        return (self.reward_weights['alpha'] * scores.get('accuracy', 0.0) +
-                self.reward_weights['beta'] * scores.get('safety', 0.0) +
-                self.reward_weights['gamma'] * scores.get('explanation_depth', 0.0))
+            
+        if self.ablation_mode == "accuracy_only":
+            return scores.get('accuracy', 0.0)
+        elif self.ablation_mode == "safety_only":
+            return scores.get('safety', 0.0)
+        elif self.ablation_mode == "explanation_only":
+            return scores.get('explanation_depth', 0.0)
+        elif self.ablation_mode == "no_accuracy":
+            return (self.reward_weights['beta'] * scores.get('safety', 0.0) +
+                    self.reward_weights['gamma'] * scores.get('explanation_depth', 0.0))
+        elif self.ablation_mode == "no_safety":
+            return (self.reward_weights['alpha'] * scores.get('accuracy', 0.0) +
+                    self.reward_weights['gamma'] * scores.get('explanation_depth', 0.0))
+        elif self.ablation_mode == "no_explanation":
+            return (self.reward_weights['alpha'] * scores.get('accuracy', 0.0) +
+                    self.reward_weights['beta'] * scores.get('safety', 0.0))
+        else:
+            return (self.reward_weights['alpha'] * scores.get('accuracy', 0.0) +
+                    self.reward_weights['beta'] * scores.get('safety', 0.0) +
+                    self.reward_weights['gamma'] * scores.get('explanation_depth', 0.0))
 
     def score_dpo_dataset(self,
                            input_jsonl_path: str,
@@ -231,11 +265,17 @@ Rate the explanation ONLY using JSON format {"{'accuracy': score1, 'safety': sco
                     rejected_reward = self._calculate_total_reward(rejected_scores)
 
                     if chosen_scores and rejected_scores:
+                        if chosen_reward < rejected_reward:
+                            data["chosen_response"], data["rejected_response"] = data["rejected_response"], data["chosen_response"]
+                            chosen_scores, rejected_scores = rejected_scores, chosen_scores
+                            chosen_reward, rejected_reward = rejected_reward, chosen_reward
+
                         data.update({
                             "chosen_scores": chosen_scores,
                             "rejected_scores": rejected_scores,
                             "chosen_reward_total": chosen_reward,
-                            "rejected_reward_total": rejected_reward
+                            "rejected_reward_total": rejected_reward,
+                            "ablation_mode": self.ablation_mode
                         })
                         outfile.write(json.dumps(data, ensure_ascii=False) + "\n")
                         processed_count_session += 1
@@ -266,9 +306,9 @@ if __name__ == "__main__":
         exit()
 
     # INPUT_DPO_FILE = "data/gemma3_data/gemma3_dpo_train_data.jsonl"
-    INPUT_DPO_FILE = "data/gemma3_data/skipped_entries.jsonl"
+    INPUT_DPO_FILE = "/Users/aravadikesh/Documents/GitHub/MedQA_DPO/data/qwen3/sft_model_train_outputs_for_dpo.jsonl"
     # OUTPUT_SCORED_FILE = "data/gemma3_data/gemma3_dpo_scored_data.jsonl"
-    OUTPUT_SCORED_FILE = "data/gemma3_data/skipped_entries_scored.jsonl"
+    OUTPUT_SCORED_FILE = "/Users/aravadikesh/Documents/GitHub/MedQA_DPO/data/qwen3/dpo_train_outputs_scored.jsonl"
     CHECKPOINT_FILE = "./dpo_scoring_checkpoint.json"
     MAX_RECORDS_TO_SCORE = None
     RATING_MODEL_NAME = "gpt-4o-mini-2024-07-18"
@@ -276,23 +316,45 @@ if __name__ == "__main__":
     PROMPT_REGEX = r"Question:\s*(?P<question>.*?)\s*Options:\s*(?P<options_formatted>.*?)\s*Choose the best answer"
     RESPONSE_REGEX = r"^(?P<answer_label>[A-E])\.\s*(?P<answer_text>.*?)\s*Explanation:\s*(?P<explanation>.*)"
 
-    scorer = DPOScorer(
-        api_key=openai_api_key,
-        rating_model=RATING_MODEL_NAME,
-        prompt_format_regex=PROMPT_REGEX,
-        response_format_regex=RESPONSE_REGEX,
-        reward_alpha=0.4,
-        reward_beta=0.3,
-        reward_gamma=0.3,
-        allow_fallback=True  
-    )
+    # Define ablation modes
+    ablation_modes = [
+        "full",  # All components
+        "accuracy_only",
+        "safety_only",
+        "explanation_only",
+        "no_accuracy",
+        "no_safety",
+        "no_explanation"
+    ]
 
-    scorer.score_dpo_dataset(
-        input_jsonl_path=INPUT_DPO_FILE,
-        output_jsonl_path=OUTPUT_SCORED_FILE,
-        checkpoint_file_path=CHECKPOINT_FILE,
-        max_samples=MAX_RECORDS_TO_SCORE,
-        checkpoint_interval=50
-    )
+    # Run scoring for each ablation mode
+    for mode in ablation_modes:
+        print(f"\nRunning scoring with ablation mode: {mode}")
+        
+        # Update output file path for each mode
+        mode_output_file = OUTPUT_SCORED_FILE.replace(".jsonl", f"_{mode}.jsonl")
+        mode_checkpoint_file = CHECKPOINT_FILE.replace(".json", f"_{mode}.json")
 
-    print("\nScoring process complete.")
+        scorer = DPOScorer(
+            api_key=openai_api_key,
+            rating_model=RATING_MODEL_NAME,
+            prompt_format_regex=PROMPT_REGEX,
+            response_format_regex=RESPONSE_REGEX,
+            reward_alpha=0.4,
+            reward_beta=0.3,
+            reward_gamma=0.3,
+            allow_fallback=True,
+            ablation_mode=mode
+        )
+
+        scorer.score_dpo_dataset(
+            input_jsonl_path=INPUT_DPO_FILE,
+            output_jsonl_path=mode_output_file,
+            checkpoint_file_path=mode_checkpoint_file,
+            max_samples=MAX_RECORDS_TO_SCORE,
+            checkpoint_interval=50
+        )
+
+        print(f"Completed scoring for mode: {mode}")
+
+    print("\nAll ablation studies complete.")
