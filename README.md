@@ -13,11 +13,23 @@ This repository contains code for implementing Direct Preference Optimization (D
 ### Data Management (`/data`)
 - `synthetic_gen.ipynb`: Notebook for generating synthetic medical QA data
 - `score_gen.py` & `score_gen_async.py`: Scripts for scoring generated responses
-- `analyze_dataset.py`: Tools for analyzing and processing the medical QA datasets
+- `medqa_async_inference.py`: Script for asynchronous inference on MedQA data
+- `biomistral_finetune (1).ipynb`: Notebook for fine-tuning BioMistral models
+- `Copy_of_mistral_finetune_2_0.ipynb`: Extended notebook for Mistral fine-tuning
+- `generation.log`: Log file for synthetic data generation
 - `/synthetic_medqa_data`: Directory containing generated synthetic medical QA data
 - `/original_datasets`: Original medical QA datasets
 - `/qwen3` & `/gemma3_data`: Model-specific data directories
+- `/runs`: Contains subdirectories for experiment runs and TensorBoard logs (e.g., `gemma3_sft`, `qwen3_sft`)
 
-### Additional Directories
-- `/lora_adapter`: Contains LoRA (Low-Rank Adaptation) model adapters
-- `/mlruns`: MLflow tracking directory for experiment logging
+
+### Model Adapters
+- `/lora_adapter`: Contains LoRA (Low-Rank Adaptation) model adapters and related files
+- `/gemma_med_dpo_adapter`: Adapter and configuration files for Gemma-based DPO models (see its README for details)
+
+### Visualization and Analysis
+- `/plots`: Contains plotting scripts and output images
+  - `plotting.ipynb`: Notebook for visualizing training and validation loss curves from experiment runs
+  - `sft_loss_curves.png`: Example output plot of SFT loss curves
+
+
