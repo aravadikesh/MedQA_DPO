@@ -13,15 +13,17 @@ This repository contains code for implementing Direct Preference Optimization (D
 ### Data Management (`/data`)
 - `synthetic_gen.ipynb`: Notebook for generating synthetic medical QA data
 - `score_gen.py` & `score_gen_async.py`: Scripts for scoring generated responses
-- `medqa_async_inference.py`: Script for asynchronous inference on MedQA data
-- `biomistral_finetune (1).ipynb`: Notebook for fine-tuning BioMistral models
-- `Copy_of_mistral_finetune_2_0.ipynb`: Extended notebook for Mistral fine-tuning
-- `generation.log`: Log file for synthetic data generation
+- `medqa_async_inference.py`: Script for asynchronous inference on MedQA data via GPT 4o mini
 - `/synthetic_medqa_data`: Directory containing generated synthetic medical QA data
-- `/original_datasets`: Original medical QA datasets
+- `/original_datasets`: Original medical QA datasets 
 - `/qwen3` & `/gemma3_data`: Model-specific data directories
 - `/runs`: Contains subdirectories for experiment runs and TensorBoard logs (e.g., `gemma3_sft`, `qwen3_sft`)
 
+### SFT Notebooks (`/sft_notebooks`)
+- `biomistral_finetune.ipynb.ipynb`: Notebook for fine-tuning BioMistral models
+- `Mistral Finetune.ipynb.ipynb`: Extended notebook for Mistral fine-tuning
+- `Qwen3_MedQA.ipynb`: SFT pipeline and experiments for Qwen3-based medical QA.
+- `Gemma3_MedQA.ipynb`: SFT pipeline and experiments for Gemma3-based medical QA.
 
 ### Model Adapters
 - `/lora_adapter`: Contains LoRA (Low-Rank Adaptation) model adapters and related files
