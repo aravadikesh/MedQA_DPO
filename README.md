@@ -24,6 +24,7 @@ This repository contains code for implementing Direct Preference Optimization (D
 - `Mistral Finetune.ipynb.ipynb`: Extended notebook for Mistral fine-tuning
 - `Qwen3_MedQA.ipynb`: SFT pipeline and experiments for Qwen3-based medical QA.
 - `Gemma3_MedQA.ipynb`: SFT pipeline and experiments for Gemma3-based medical QA.
+- `Llama3_2_MedQA.ipynb`: SFT pipeline and experiments for Llama3.2-based medical QA.
 
 ### Model Adapters
 - `/lora_adapter`: Contains LoRA (Low-Rank Adaptation) model adapters and related files
